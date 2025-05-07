@@ -6,6 +6,11 @@ Matthew Martin mjm836
 CS-465-001 SP 24-25
 Assignment 3
 
+Dependencies:
+    - Python 3.x
+    - Pillow (PIL) library for image processing (This is installed on Drexel's tux)
+    - sys module for command line arguments
+    - os module for file path manipulation
 """
 class EXIT_CODE:
     SUCCESS = 0
@@ -21,6 +26,34 @@ def hide_message(image, message) -> int:
 def retrieve_message(image) -> int:
     print("Retrieving message...")
     return EXIT_CODE.SUCCESS
+
+"""
+    Get a new image name for the output file
+    This function takes a file path and returns a new file path with "_new" appended
+    to the filename. If the new file path already exists, it prompts the user to
+    overwrite the existing file or not.
+
+    Args:
+        filepath: String, path to the input image file
+    Returns:
+        new_path: String, path to the new image file
+"""
+def new_image_name(filepath: str) -> str:
+    # declarations
+    new_path = ""
+    filename = ""
+
+    filename, _ = os.path.splitext(filepath)
+    new_path = f"{filename}_new.png"
+    # check if new_path exists already
+    if os.path.exists(new_path):
+        # Ask user if they want to overwrite the existing file
+        response = input(f"File {new_path} already exists. Overwrite? (y/n): ")
+        if response.lower() != 'y':
+            raise Exception(f"User chose not to overwrite {new_path}")
+
+    return new_path
+
 
 def main() -> int:
     # declarations
