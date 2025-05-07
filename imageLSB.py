@@ -14,7 +14,7 @@ Dependencies:
 """
 class EXIT_CODE:
     SUCCESS = 0
-    ERROR = 1
+    GENERAL_ERROR = 1
     HIDING_ERROR = 2
     RETRIEVING_ERROR = 3
 
@@ -106,24 +106,24 @@ def main() -> EXIT_CODE:
     # length of sys.argv should be 4
     if len(sys.argv) < 2:
         print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when HIDING_ERROR)>")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
 
 # check if option is valid
     option = sys.argv[1].lower()
     if option not in ["hide", "retrieve"]:
         print(f"Invalid option: {sys.argv[1]}. Use 'hide' or 'retrieve'.")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
     if option == "hide" and len(sys.argv) != 4:
         print(f"Usage: python {sys.argv[0]} hide <input_image> <message>")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
     if option == "retrieve" and len(sys.argv) != 3:
         print(f"Usage: python {sys.argv[0]} retrieve <input_image>")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
 
 # check if input_image is a valid image file
     if sys.argv[2].endswith(".png") == False:
         print(f"Invalid image file: {sys.argv[2]}. Use a .png file.")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
     # check if input_image exists and can be read
     try:
         img = Image.open(sys.argv[2])
@@ -136,28 +136,28 @@ def main() -> EXIT_CODE:
             imageCapacity = width * height * 3 // 8  # in bytes
     except FileNotFoundError:
         print(f"File not found: {sys.argv[2]}.")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
     except PermissionError:
         print(f"Permission denied: Cannot read {sys.argv[2]}.")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
     except Exception as e:
         print(f"Error reading image: {e}")
-        return EXIT_CODE.ERROR
+        return EXIT_CODE.GENERAL_ERROR
 
 # check if message is a valid string
     if option == "hide":
         if not sys.argv[3]:
             print("Message cannot be empty.")
-            return EXIT_CODE.ERROR
+            return EXIT_CODE.GENERAL_ERROR
         # check if message is too long
         messageLength = len(sys.argv[3])
         if messageLength > imageCapacity:
             print(f"Message is too long. Maximum length is {imageCapacity} bytes.")
-            return EXIT_CODE.ERROR 
+            return EXIT_CODE.GENERAL_ERROR 
         # check if message is a valid string
         if not all(c.isprintable() for c in sys.argv[3]):
             print("Message contains non-printable characters.")
-            return EXIT_CODE.ERROR
+            return EXIT_CODE.GENERAL_ERROR
 
     # run the function
     match option:
@@ -168,7 +168,7 @@ def main() -> EXIT_CODE:
             return retrieve_message(img)
         case _:
             print(f"Error in option") # I don't know how it could get here, just covering my bases
-            return EXIT_CODE.ERROR
+            return EXIT_CODE.GENERAL_ERROR
 
     return EXIT_CODE.SUCCESS
 
