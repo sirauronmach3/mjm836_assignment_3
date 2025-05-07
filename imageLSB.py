@@ -15,9 +15,11 @@ class EXIT_CODE:
 import sys
 from PIL import Image
 
-def hide_message(Image.Image image, str message) -> int:
+def hide_message(image, message) -> int:
+    print("Hiding message...")
     return EXIT_CODE.SUCCESS
-def retrieve_message(Image.Image image) -> int:
+def retrieve_message(image) -> int:
+    print("Retrieving message...")
     return EXIT_CODE.SUCCESS
 
 def main() -> int:
@@ -28,7 +30,6 @@ def main() -> int:
     width = 0
     height = 0
     option = ""
-
     
 # input validation
     # length of sys.argv should be 4
@@ -87,7 +88,7 @@ def main() -> int:
             return EXIT_CODE.ERROR
 
     # run the function
-    match option
+    match option:
         case "hide": 
             return hide_message(img, sys.argv[3])
         case "retrieve":
