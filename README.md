@@ -1,6 +1,9 @@
 # Homework 3: Steganography
 
-For this assignment, you will explore the concept of steganography by implementing a program that uses Least Significant Bit (LSB) steganography to hide and retrieve messages within an image.
+Matthew J. Martin
+CS-465-001 SP 24-25
+Assignment 3
+Due: 25 May 2025
 
 ## Requirements
 
