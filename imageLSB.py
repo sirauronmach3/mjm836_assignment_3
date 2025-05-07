@@ -15,15 +15,53 @@ Dependencies:
 class EXIT_CODE:
     SUCCESS = 0
     ERROR = 1
-    WARNING = 2
+    HIDING_ERROR = 2
+    RETRIEVING_ERROR = 3
 
 import sys
 from PIL import Image
+import os
 
-def hide_message(image, message) -> int:
-    print("Hiding message...")
+"""
+    Hide a message in an image using LSB steganography
+    This function takes a PIL Image object and a message string, and hides the message 
+    in the image's pixel data in a new image. The message is hidden in the least 
+    significant bits of the pixel values.
+
+    Creates a new image with the message hidden in it. The new image is saved with 
+    "_new" appended to the filename.
+    
+    Args:
+        image: PIL Image object, already converted to RGB
+        message: String to hide in the image
+        filepath: String, path to the input image file
+        
+    Returns:
+        EXIT_CODE indicating success or failure
+"""
+def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
+    # declarations
+    new_path = ""
+
+
+    try: 
+        print("Hiding message...")
+        # get new image name
+        new_path = new_image_name(filepath)
+        # make copy of image
+        # calculate message length
+        # add message length to the beginning of the message
+        # convert message to binary
+        # get image data
+        # embed message in image data
+        # save new image
+    except Exception as e:
+        print(f"Error HIDING_ERROR message: {e}")
+        return EXIT_CODE.HIDING_ERROR
     return EXIT_CODE.SUCCESS
-def retrieve_message(image) -> int:
+
+
+def retrieve_message(image: Image.Image) -> EXIT_CODE:
     print("Retrieving message...")
     return EXIT_CODE.SUCCESS
 
@@ -55,7 +93,7 @@ def new_image_name(filepath: str) -> str:
     return new_path
 
 
-def main() -> int:
+def main() -> EXIT_CODE:
     # declarations
     messageLength = 0
     imageCapacity = 0
@@ -67,7 +105,7 @@ def main() -> int:
 # input validation
     # length of sys.argv should be 4
     if len(sys.argv) < 2:
-        print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when hiding)>")
+        print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when HIDING_ERROR)>")
         return EXIT_CODE.ERROR
 
 # check if option is valid
@@ -89,6 +127,7 @@ def main() -> int:
     # check if input_image exists and can be read
     try:
         img = Image.open(sys.argv[2])
+        img = img.convert("RGB")  # Convert to RGB if not already in that mode
         if option == "hide":
             # Get image dimensions
             width, height = img.size
@@ -123,12 +162,12 @@ def main() -> int:
     # run the function
     match option:
         case "hide": 
-            return hide_message(img, sys.argv[3])
+            return hide_message(img, sys.argv[3], sys.argv[2])
         case "retrieve":
             # retrieve the message from the image
             return retrieve_message(img)
         case _:
-            print(f"Error in option")
+            print(f"Error in option") # I don't know how it could get here, just covering my bases
             return EXIT_CODE.ERROR
 
     return EXIT_CODE.SUCCESS
