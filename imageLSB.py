@@ -28,11 +28,15 @@ import os
     in the image's pixel data in a new image. The message is hidden in the least 
     significant bits of the pixel values.
 
+    There is header information, containing message length, that take up the first 32 bits
+    of the image. The characters of the message are stored as 8 bit representations of their
+    ASCII values.
+
     Creates a new image with the message hidden in it. The new image is saved with 
     "_new" appended to the filename.
     
     Args:
-        image: PIL Image object, already converted to RGB
+        image: PIL Image object, already converted to RGB and checked to ensure large enough for message
         message: String to hide in the image
         filepath: String, path to the input image file
         
@@ -42,16 +46,25 @@ import os
 def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
     # declarations
     new_path = ""
+    new_image = None
+    messageLength = 0
+    binaryMessageLength = ""
+    binaryMessage = ""
 
 
     try: 
-        print("Hiding message...")
+        print("Hiding message...") # TODO: Testing statement, remove this when done
         # get new image name
         new_path = new_image_name(filepath)
         # make copy of image
+        new_image = image.copy()
         # calculate message length
-        # add message length to the beginning of the message
+        messageLength = len(message)
+        binaryLength = format(messageLength, '032b') # converts message length to a 32 bit binary string
         # convert message to binary
+        binaryMessage = get_binary_string(message)
+        # append binary length to binary message
+        binaryMessage = binaryLength + binaryMessage
         # get image data
         # embed message in image data
         # save new image
