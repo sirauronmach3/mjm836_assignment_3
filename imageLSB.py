@@ -58,11 +58,10 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
     new_image = None
     messageLength = 0
     binaryMessageLength = ""
-    binaryMessage = ""
+    binaryMessage = ''
     width = 0
     height = 0
     imageData = None
-
 
     try: 
         print("Hiding message...")
@@ -75,8 +74,8 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
         
         # calculate message length
         messageLength = len(message)
-        binaryLength = format(messageLength, f'0{HEADER_SIZE_BITS}b') # converts message length to a 32 bit binary string
-        
+        binaryLength = format(messageLength, f'0{HEADER_SIZE_BITS}b')  # converts message length to a 32-bit binary string
+
         # convert message to binary
         binaryMessage = get_binary_string(message)
 
@@ -141,90 +140,71 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
         imageData = image.load()
 
         # get binary message length
-        for i in range(height - 1):
-            for j in range(width - 1):
+        for i in range(height):
+            for j in range(width):
                 # get rgb values of pixel
                 r, g, b = imageData[j, i]
 
                 # get LSB of each color channel
-                # r
                 if ordinal < HEADER_SIZE_BITS:
                     binaryMessageLength += str(r & 1)
                     ordinal += 1
-                # g
                 if ordinal < HEADER_SIZE_BITS:
                     binaryMessageLength += str(g & 1)
-                    ordinal += 1 
-                # b
+                    ordinal += 1
                 if ordinal < HEADER_SIZE_BITS:
                     binaryMessageLength += str(b & 1)
                     ordinal += 1
 
                 # break inner loop
-                if (ordinal >= HEADER_SIZE_BITS):
+                if ordinal >= HEADER_SIZE_BITS:
                     break
 
             # break outer loop
-            if (ordinal >= HEADER_SIZE_BITS):
+            if ordinal >= HEADER_SIZE_BITS:
                 break
-            j = 0
 
         # convert binary message length to int
         messageLength = int(binaryMessageLength, 2)
 
-        # multiply length by char size to get number of bits
-        bitsToExtract = messageLength * CHAR_SIZE_BITS
-
-        # add header length to message bits compare to ordinal
-        bitsToExtract += HEADER_SIZE_BITS
+        # calculate total bits to extract (message bits + header bits)
+        bitsToExtract = messageLength * CHAR_SIZE_BITS + HEADER_SIZE_BITS * 2
 
         # Extract message bits
-        if ((ordinal % 3) == 0):
-            j += 1
-            if (j >= (width - 1)):
-                j = 0
-                i += 1
-
         current_i = i
         current_j = j
 
-        for i in range(current_i, height - 1):
-            for j in range(width - 1):
-                if (first):
+        for i in range(current_i, height):
+            for j in range(width):
+                if first:
                     j = current_j
                     first = False
                 # get rgb
                 r, g, b = imageData[j, i]
 
                 # get LSB of each color channel
-                # r
                 if ordinal < bitsToExtract:
                     binaryMessage += str(r & 1)
                     ordinal += 1
-                # g
-                if ordinal < bitsToExtract: 
+                if ordinal < bitsToExtract:
                     binaryMessage += str(g & 1)
                     ordinal += 1
-                # b
                 if ordinal < bitsToExtract:
                     binaryMessage += str(b & 1)
                     ordinal += 1
+
                 # break inner loop
-                if (ordinal >= bitsToExtract):
+                if ordinal >= bitsToExtract:
                     break
 
             # break outer loop        
-            if (ordinal >= bitsToExtract):
+            if ordinal >= bitsToExtract:
                 break
-            j = 0
 
         # convert binary message to message
-        for i in range(0, len(binaryMessage) - 1, CHAR_SIZE_BITS):
-            # get 8 bits
+        for i in range(HEADER_SIZE_BITS, len(binaryMessage), CHAR_SIZE_BITS):  # Skip header bits
             byte = binaryMessage[i:i + CHAR_SIZE_BITS]
-            # convert to int
             char = int(byte, 2)
-            # convert to char
             message += chr(char)
 
         # print message
@@ -267,8 +247,8 @@ def embed_message(imageData, binaryMessage: str, width: int, height: int) -> EXI
 
     binaryLength = len(binaryMessage)
     # loop through pixels in the image
-    for i in range(height - 1):
-        for j in range(width - 1):
+    for i in range(height):
+        for j in range(width):
             # get rgb values of pixel
             r, g, b = imageData[j, i]
 
@@ -300,7 +280,7 @@ def embed_message(imageData, binaryMessage: str, width: int, height: int) -> EXI
         # check if we have reached the end of the message break outer loop
         if ordinal >= binaryLength:
             break
-        j = 0
+
 
 
     return EXIT_CODE.SUCCESS
@@ -373,13 +353,13 @@ def main() -> EXIT_CODE:
 # input validation
     # length of sys.argv should be 3 or 4
     if len(sys.argv) < 2 or len(sys.argv) > 4:
-        print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when HIDING_ERROR)>")
+        print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when hiding)>")
         return EXIT_CODE.GENERAL_ERROR
 
 # check if option is valid
     option = sys.argv[1].lower()
     if option not in ["hide", "retrieve"]:
-        print(f"Invalid option: {sys.argv[1]}. Use 'hide' or 'retrieve'.")
+        print(f"Invalid option: {sys.argv[1]}. Use 'hide' to hide a message or 'retrieve' to extract a message.")
         return EXIT_CODE.GENERAL_ERROR
     if option == "hide" and len(sys.argv) != 4:
         print(f"Usage: python {sys.argv[0]} hide <input_image> <message>")
@@ -389,7 +369,7 @@ def main() -> EXIT_CODE:
         return EXIT_CODE.GENERAL_ERROR
 
 # check if input_image is a valid image file
-    if sys.argv[2].endswith(".png") == False:
+    if not sys.argv[2].lower().endswith(".png"):
         print(f"Invalid image file: {sys.argv[2]}. Use a .png file.")
         return EXIT_CODE.GENERAL_ERROR
     # check if input_image exists and can be read
@@ -401,7 +381,7 @@ def main() -> EXIT_CODE:
             width, height = img.size
             # Calculate image capacity for LSB steganography
             # Each pixel has 3 channels (R,G,B), and we use 1 bit per channel
-            imageCapacity = ((width * height * 3) - HEADER_SIZE_BITS) // 8  # Convert to bytes
+            imageCapacity = ((width * height * 3) - HEADER_SIZE_BITS) // CHAR_SIZE_BITS  
     except FileNotFoundError:
         print(f"File not found: {sys.argv[2]}.")
         return EXIT_CODE.GENERAL_ERROR
