@@ -27,6 +27,7 @@ class EXIT_CODE:
 
 
 HEADER_SIZE_BITS = 32
+CHAR_SIZE_BITS = 8
 
 
 """
@@ -219,7 +220,7 @@ def get_binary_string(message: str) -> str:
         # convert char to int
         intChar = ord(char)
         # converts char to 8 bit binary string
-        binaryChar = format(intChar, '08b') 
+        binaryChar = format(intChar, f'0{CHAR_SIZE_BITS}b') 
         # append binaryChar to binaryMessage
         binaryMessage += binaryChar
 
