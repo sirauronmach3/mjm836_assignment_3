@@ -78,6 +78,75 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
     print("Retrieving message...")
     return EXIT_CODE.SUCCESS
 
+
+"""
+    embed_message
+    This function takes the image data, a binary message string, and the width and height
+    of the image, and embeds the message in the image data. The message is embedded in
+    the least significant bits of the pixel values. The function modifies the image data
+    in place.
+
+
+    Modified:
+        The image data is modified in place.
+    Args:
+        imageData: Image data object, a 2D array of pixel values
+        binaryMessage: String, binary representation of the message to hide
+        width: Integer, width of the image
+        height: Integer, height of the image
+    Returns:
+        EXIT_CODE indicating success or failure
+"""
+def embed_message(imageData, binaryMessage: str, width: int, height: int) -> EXIT_CODE:
+    # declarations
+    ordinal = 0
+    binaryLength = 0
+    i = 0
+    j = 0
+    r = 0
+    g = 0
+    b = 0
+
+    binaryLength = len(binaryMessage)
+    # loop through pixels in the image
+    for i in range(height):
+        for j in range(width):
+            # get rgb values of pixel
+            r, g, b = imageData[j, i]
+
+            # modify each color channel
+            # r
+            if ordinal < binaryLength:
+                # clear the LSB
+                r = r & ~1  # bitwise AND with not 1, which clears the LSB
+                # set the LSB to the next bit of the message
+                r = r | int(binaryMessage[ordinal])
+                # increment ordinal
+                ordinal += 1
+            # g
+            if ordinal < binaryLength:
+                g = g & ~1
+                g = g | int(binaryMessage[ordinal])
+                ordinal += 1
+            # b
+            if ordinal < binaryLength:
+                b = b & ~1
+                b = b | int(binaryMessage[ordinal])
+                ordinal += 1
+
+            # set the new pixel value
+            imageData[j, i] = (r, g, b)
+            # check if we have reached the end of the message break inner loop
+            if ordinal >= binaryLength:
+                break
+        # check if we have reached the end of the message break outer loop
+        if ordinal >= binaryLength:
+            break
+        j = 0
+
+
+    return EXIT_CODE.SUCCESS
+
 """
     Get a new image name for the output file
     This function takes a file path and returns a new file path with "_new" appended
