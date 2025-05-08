@@ -64,30 +64,39 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
 
 
     try: 
-        print("Hiding message...") # TODO: Testing statement, remove this when done
+        print("Hiding message...")
+        
         # get new image name
         new_path = new_image_name(filepath)
+        
         # make copy of image
         new_image = image.copy()
+        
         # calculate message length
         messageLength = len(message)
         binaryLength = format(messageLength, f'0{HEADER_SIZE_BITS}b') # converts message length to a 32 bit binary string
+        
         # convert message to binary
         binaryMessage = get_binary_string(message)
+
         # append binary length to binary message
         binaryMessage = binaryLength + binaryMessage
+
         # get image data
         width, height = new_image.size
         imageData = new_image.load()
+
         # embed message in image data
         if (embed_message(imageData, binaryMessage, width, height) != EXIT_CODE.SUCCESS):
             raise Exception("Error embedding message in image data")
+
         # save new image
         new_image.save(new_path)
         print(f"Message hidden in {new_path}")
     except Exception as e:
         print(f"Error HIDING_ERROR message: {e}")
         return EXIT_CODE.HIDING_ERROR
+
     return EXIT_CODE.SUCCESS
 
 
