@@ -127,6 +127,7 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
     current_j = 0
     byte = 0
     char = ""
+    first = True
 
     try:
         print("Retrieving message...")
@@ -184,7 +185,10 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
         current_j = j
 
         for i in range(current_i, height - 1):
-            for j in range(current_j, width - 1):
+            for j in range(width - 1):
+                if (first):
+                    j = current_j
+                    first = False
                 # get rgb
                 r, g, b = imageData[j, i]
 
