@@ -12,15 +12,22 @@ Dependencies:
     - sys module for command line arguments
     - os module for file path manipulation
 """
+
+
+import sys
+from PIL import Image
+import os
+
+
 class EXIT_CODE:
     SUCCESS = 0
     GENERAL_ERROR = 1
     HIDING_ERROR = 2
     RETRIEVING_ERROR = 3
 
-import sys
-from PIL import Image
-import os
+
+HEADER_SIZE_BITS = 32
+
 
 """
     Hide a message in an image using LSB steganography
@@ -50,6 +57,9 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
     messageLength = 0
     binaryMessageLength = ""
     binaryMessage = ""
+    width = 0
+    height = 0
+    imageData = None
 
 
     try: 
@@ -60,14 +70,20 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
         new_image = image.copy()
         # calculate message length
         messageLength = len(message)
-        binaryLength = format(messageLength, '032b') # converts message length to a 32 bit binary string
+        binaryLength = format(messageLength, f'0{HEADER_SIZE_BITS}b') # converts message length to a 32 bit binary string
         # convert message to binary
         binaryMessage = get_binary_string(message)
         # append binary length to binary message
         binaryMessage = binaryLength + binaryMessage
         # get image data
+        width, height = new_image.size
+        imageData = new_image.load()
         # embed message in image data
+        if (embed_message(imageData, binaryMessage, width, height) != EXIT_CODE.SUCCESS):
+            raise Exception("Error embedding message in image data")
         # save new image
+        new_image.save(new_path)
+        print(f"Message hidden in {new_path}")
     except Exception as e:
         print(f"Error HIDING_ERROR message: {e}")
         return EXIT_CODE.HIDING_ERROR
@@ -242,8 +258,8 @@ def main() -> EXIT_CODE:
             # Get image dimensions
             width, height = img.size
             # Calculate image capacity for LSB steganography
-            # Each pixel has 3 channels (R,G,B), and it will use 1 bit per channel
-            imageCapacity = width * height * 3 // 8  # in bytes
+            # Each pixel has 3 channels (R,G,B), and we use 1 bit per channel
+            imageCapacity = ((width * height * 3) - HEADER_SIZE_BITS) // 8  # Convert to bytes
     except FileNotFoundError:
         print(f"File not found: {sys.argv[2]}.")
         return EXIT_CODE.GENERAL_ERROR
@@ -262,7 +278,7 @@ def main() -> EXIT_CODE:
         # check if message is too long
         messageLength = len(sys.argv[3])
         if messageLength > imageCapacity:
-            print(f"Message is too long. Maximum length is {imageCapacity} bytes.")
+            print(f"Message is too long. Maximum capacity is {imageCapacity} bytes (image has {width}x{height} pixels).")
             return EXIT_CODE.GENERAL_ERROR 
         # check if message is a valid string
         if not all(c.isprintable() for c in sys.argv[3]):
@@ -274,10 +290,10 @@ def main() -> EXIT_CODE:
         case "hide": 
             return hide_message(img, sys.argv[3], sys.argv[2])
         case "retrieve":
-            # retrieve the message from the image
             return retrieve_message(img)
         case _:
-            print(f"Error in option") # I don't know how it could get here, just covering my bases
+            # I don't know how it could get here, just covering my bases
+            print(f"Error in option") 
             return EXIT_CODE.GENERAL_ERROR
 
     return EXIT_CODE.SUCCESS
