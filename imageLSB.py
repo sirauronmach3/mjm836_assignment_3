@@ -103,8 +103,8 @@ def main() -> EXIT_CODE:
     option = ""
     
 # input validation
-    # length of sys.argv should be 4
-    if len(sys.argv) < 2:
+    # length of sys.argv should be 3 or 4
+    if len(sys.argv) < 2 or len(sys.argv) > 4:
         print(f"Usage: python {sys.argv[0]} <hide/retrieve> <input_image> <message (when HIDING_ERROR)>")
         return EXIT_CODE.GENERAL_ERROR
 
