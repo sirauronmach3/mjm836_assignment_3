@@ -136,7 +136,7 @@ def embed_message(imageData, binaryMessage: str, width: int, height: int) -> EXI
                 # clear the LSB
                 r = r & ~1  # bitwise AND with not 1, which clears the LSB
                 # set the LSB to the next bit of the message
-                r = r | int(binaryMessage[ordinal])
+                r = r | int(binaryMessage[ordinal]) # bitwise OR with the next bit of the message
                 # increment ordinal
                 ordinal += 1
             # g
