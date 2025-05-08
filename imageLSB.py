@@ -111,12 +111,18 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
     ordinal = 0
     bitsToExtract = 0
     message = ""
+    i = 0
+    j = 0
+    current_i = 0
+    current_j = 0
 
     try:
         print("Retrieving message...")
+
         # get image data
         width, height = image.size
         imageData = image.load()
+
         # get binary message length
         for i in range(height - 1):
             for j in range(width - 1):
@@ -140,19 +146,67 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
                 # break inner loop
                 if (ordinal >= HEADER_SIZE_BITS):
                     break
+
             # break outer loop
             if (ordinal >= HEADER_SIZE_BITS):
                 break
             j = 0
+
         # convert binary message length to int
-        # multiply length by 8 to get number of bits 
+        messageLength = int(binaryMessageLength, 2)
+
+        # multiply length by char size to get number of bits
+        bitsToExtract = messageLength * CHAR_SIZE_BITS
+
         # add header length to message bits compare to ordinal
+        bitsToExtract += HEADER_SIZE_BITS
+
         # Extract message bits
+        if ((ordinal % 3) == 0):
+            j += 1
+            if (j >= (width - 1)):
+                j = 0
+                i += 1
+
+        current_i = i
+        current_j = j
+
+        for i in range(current_i, height - 1):
+            for j in range(current_j, width - 1):
+                # get rgb
+                r, g, b = imageData[j, i]
+
+                # get LSB of each color channel
+                # r
+                if ordinal < bitsToExtract:
+                    binaryMessage += str(r & 1)
+                    ordinal += 1
+                # g
+                if ordinal < bitsToExtract: 
+                    binaryMessage += str(g & 1)
+                    ordinal += 1
+                # b
+                if ordinal < bitsToExtract:
+                    binaryMessage += str(b & 1)
+                    ordinal += 1
+                # break inner loop
+                if (ordinal >= bitsToExtract):
+                    break
+
+            # break outer loop        
+            if (ordinal >= bitsToExtract):
+                break
+            j = 0
+
         # convert binary message to message
+        
+
         # print message
+        print(f"Message retrieved: {message}")
     except Exception as e:
         print(f"Error RETRIEVING_ERROR message: {e}")
         return EXIT_CODE.RETRIEVING_ERROR
+
     return EXIT_CODE.SUCCESS
 
 
