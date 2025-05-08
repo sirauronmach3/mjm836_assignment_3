@@ -99,7 +99,17 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
 
     return EXIT_CODE.SUCCESS
 
-
+"""
+    retrieve_message
+    This function takes a PIL Image object and retrieves the hidden message from the image's pixel data.
+    The message is retrieved from the least significant bits of the pixel values. The function
+    prints the message to the console.
+    
+    Args:
+        image: PIL Image object, already converted to RGB
+    Returns:
+        EXIT_CODE indicating success or failure
+"""
 def retrieve_message(image: Image.Image) -> EXIT_CODE:
     # declarations
     binaryMessage = ""
@@ -115,6 +125,8 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
     j = 0
     current_i = 0
     current_j = 0
+    byte = 0
+    char = ""
 
     try:
         print("Retrieving message...")
@@ -199,10 +211,17 @@ def retrieve_message(image: Image.Image) -> EXIT_CODE:
             j = 0
 
         # convert binary message to message
-        
+        for i in range(0, len(binaryMessage) - 1, CHAR_SIZE_BITS):
+            # get 8 bits
+            byte = binaryMessage[i:i + CHAR_SIZE_BITS]
+            # convert to int
+            char = int(byte, 2)
+            # convert to char
+            message += chr(char)
 
         # print message
         print(f"Message retrieved: {message}")
+
     except Exception as e:
         print(f"Error RETRIEVING_ERROR message: {e}")
         return EXIT_CODE.RETRIEVING_ERROR
