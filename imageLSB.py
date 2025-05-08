@@ -94,9 +94,53 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
 def retrieve_message(image: Image.Image) -> EXIT_CODE:
     # declarations
     binaryMessage = ""
+    binaryMessageLength = ""
+    messageLength = 0
+    width = 0
+    height = 0
+    imageData = None
+    ordinal = 0
+    bitsToExtract = 0
+    message = ""
 
     try:
         print("Retrieving message...")
+        # get image data
+        width, height = image.size
+        imageData = image.load()
+        # get binary message length
+        for i in range(height - 1):
+            for j in range(width - 1):
+                # get rgb values of pixel
+                r, g, b = imageData[j, i]
+
+                # get LSB of each color channel
+                # r
+                if ordinal < HEADER_SIZE_BITS:
+                    binaryMessageLength += str(r & 1)
+                    ordinal += 1
+                # g
+                if ordinal < HEADER_SIZE_BITS:
+                    binaryMessageLength += str(g & 1)
+                    ordinal += 1 
+                # b
+                if ordinal < HEADER_SIZE_BITS:
+                    binaryMessageLength += str(b & 1)
+                    ordinal += 1
+
+                # break inner loop
+                if (ordinal >= HEADER_SIZE_BITS):
+                    break
+            # break outer loop
+            if (ordinal >= HEADER_SIZE_BITS):
+                break
+            j = 0
+        # convert binary message length to int
+        # multiply length by 8 to get number of bits 
+        # add header length to message bits compare to ordinal
+        # Extract message bits
+        # convert binary message to message
+        # print message
     except Exception as e:
         print(f"Error RETRIEVING_ERROR message: {e}")
         return EXIT_CODE.RETRIEVING_ERROR
@@ -133,8 +177,8 @@ def embed_message(imageData, binaryMessage: str, width: int, height: int) -> EXI
 
     binaryLength = len(binaryMessage)
     # loop through pixels in the image
-    for i in range(height):
-        for j in range(width):
+    for i in range(height - 1):
+        for j in range(width - 1):
             # get rgb values of pixel
             r, g, b = imageData[j, i]
 
