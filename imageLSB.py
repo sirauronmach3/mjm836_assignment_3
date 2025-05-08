@@ -91,7 +91,14 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
 
 
 def retrieve_message(image: Image.Image) -> EXIT_CODE:
-    print("Retrieving message...")
+    # declarations
+    binaryMessage = ""
+
+    try:
+        print("Retrieving message...")
+    except Exception as e:
+        print(f"Error RETRIEVING_ERROR message: {e}")
+        return EXIT_CODE.RETRIEVING_ERROR
     return EXIT_CODE.SUCCESS
 
 
