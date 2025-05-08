@@ -42,7 +42,8 @@ CHAR_SIZE_BITS = 8
 
     Creates a new image with the message hidden in it. The new image is saved with 
     "_new" appended to the filename.
-    
+    Modified:
+        prints to console the name of the new image
     Args:
         image: PIL Image object, already converted to RGB and checked to ensure large enough for message
         message: String to hide in the image
@@ -104,7 +105,10 @@ def hide_message(image: Image.Image, message: str, filepath: str) -> EXIT_CODE:
     This function takes a PIL Image object and retrieves the hidden message from the image's pixel data.
     The message is retrieved from the least significant bits of the pixel values. The function
     prints the message to the console.
-    
+
+
+    Modified:
+        print the message to the console
     Args:
         image: PIL Image object, already converted to RGB
     Returns:
