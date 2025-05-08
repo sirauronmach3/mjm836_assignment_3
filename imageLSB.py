@@ -93,6 +93,34 @@ def new_image_name(filepath: str) -> str:
     return new_path
 
 
+"""
+    get_binary_string
+    This function takes a string and converts it to a binary string. Each character
+    in the string is converted to its ASCII value, and then to an 8-bit binary string.
+    The binary strings are concatenated together to form a single binary string.
+
+    Args:
+        message: String to convert to binary
+    Returns:
+        binaryMessage: String, binary representation of the input string
+"""
+def get_binary_string(message: str) -> str:
+    # declarations
+    binaryMessage = ""
+    binaryChar = ""
+    intChar = 0
+
+    for char in message:
+        # convert char to int
+        intChar = ord(char)
+        # converts char to 8 bit binary string
+        binaryChar = format(intChar, '08b') 
+        # append binaryChar to binaryMessage
+        binaryMessage += binaryChar
+
+    return binaryMessage    
+
+
 def main() -> EXIT_CODE:
     # declarations
     messageLength = 0
